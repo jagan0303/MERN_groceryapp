@@ -1,0 +1,15 @@
+packages\
+express
+nodemon
+mongoose
+dotenv
+bcrypt.js
+jwt
+cors
+multer packages
+nodemailer
+url:for checking api in postman
+http://localhost:8000/admin/admin-login
+http://localhost:8000/admin/admin-register
+localhost:8000/api/add-product
+localhost:8000/email/send-otp
