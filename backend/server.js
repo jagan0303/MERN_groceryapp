@@ -24,7 +24,6 @@ app.use(cors({
   origin: ['http://localhost:3000', 'https://mern-groceryapp-1.onrender.com'],
   credentials: true,
 }));
-
 // middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
