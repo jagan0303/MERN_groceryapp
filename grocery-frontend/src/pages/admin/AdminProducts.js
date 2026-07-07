@@ -3,7 +3,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api/axios';
 import './Admin.css';
-
+import { getImageURL } from '../../api/helpers';
 const CATEGORIES = ['all', 'vegetables', 'fruits', 'dairy', 'grains', 'beverages', 'snacks', 'other'];
 
 const EMPTY_FORM = { name: '', price: '', desc: '', category: '', unit: '' };
@@ -72,7 +72,7 @@ function AdminProducts() {
       unit: product.unit || '',
     });
     setImage(null);
-    setImagePreview('http://localhost:8000' + product.image);
+    setImagePreview(getImageURL(product.image));
     setMsg('');
     setError('');
     setShowForm(true);

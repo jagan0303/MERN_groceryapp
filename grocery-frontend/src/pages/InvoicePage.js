@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import './InvoicePage.css';
+import { getImageURL } from '../api/helpers';
 
 function InvoicePage({ order }) {
   const invoiceRef = useRef();
@@ -95,7 +96,7 @@ function InvoicePage({ order }) {
                 <tr key={index}>
                   <td className="product-cell">
                     <img
-                      src={'http://localhost:8000' + item.product.image}
+                     src={getImageURL(item.product.image)}
                       alt={item.product.name}
                       className="invoice-product-img"
                       onError={function(e) { e.target.style.display = 'none'; }}

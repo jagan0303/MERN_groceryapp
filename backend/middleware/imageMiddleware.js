@@ -1,16 +1,24 @@
-const multer =require("multer")
- const path = require("path")
-const storage = multer.diskStorage({
-   destination:(req,file,cb)=>{
-    cb(null,path.join(__dirname,"../uploads"))
-   },
-   filename:(req,file,cb)=>{
-       const ext=path.extname(file.originalname);
-       const name=path
-       .basename(file.originalname,ext)
-       .replace(/\s+/g,"-");
-       cb(null,`${Date.now()}-${name}${ext}`)
-   }
-})
-const upload=multer({storage})
-module.exports=upload;
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const dotenv = require("dotenv");
+dotenv.config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "grocery-app",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+    transformation: [{ width: 500, height: 500, crop: "limit" }]
+  }
+});
+
+const upload = multer({ storage });
+
+module.exports = upload;

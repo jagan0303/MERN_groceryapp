@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { useCart } from '../context/CartContext';
+import { getImageURL } from '../api/helpers';
 import './CartPage.css';
 
 function CartPage() {
@@ -129,7 +130,7 @@ function CartPage() {
             return (
               <div key={item.product._id} className="cart-item">
                 <img
-                  src={'http://localhost:8000' + item.product.image}
+                  src={getImageURL(item.product.image)}
                   alt={item.product.name}
                   onError={function(e) { e.target.src = '/placeholder.png'; }}
                 />

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
+import { getImageURL } from '../api/helpers';
 import './WishlistPage.css';
 
 function WishlistPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [toast, setToast] = useState('');
   const navigate = useNavigate();
   const customerToken = localStorage.getItem('customerToken');
 
@@ -21,12 +23,17 @@ function WishlistPage() {
       const res = await API.get('/wishlist/my-wishlist', {
         headers: { Authorization: 'Bearer ' + customerToken }
       });
-      setProducts(res.data.products);
+      setProducts(res.data.products || []);
     } catch (err) {
       setError('Failed to load wishlist.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const showToast = function(msg) {
+    setToast(msg);
+    setTimeout(function() { setToast(''); }, 2500);
   };
 
   const handleRemove = async function(productId) {
@@ -35,8 +42,9 @@ function WishlistPage() {
         headers: { Authorization: 'Bearer ' + customerToken }
       });
       setProducts(products.filter(function(p) { return p._id !== productId; }));
+      showToast('Removed from wishlist');
     } catch (err) {
-      alert('Failed to remove item');
+      showToast('Failed to remove item');
     }
   };
 
@@ -46,9 +54,9 @@ function WishlistPage() {
         { productId: product._id, quantity: 1 },
         { headers: { Authorization: 'Bearer ' + customerToken } }
       );
-      alert(product.name + ' added to cart!');
+      showToast('Added ' + product.name + ' to cart!');
     } catch (err) {
-      alert('Failed to add to cart');
+      showToast('Failed to add to cart');
     }
   };
 
@@ -58,6 +66,8 @@ function WishlistPage() {
         <button className="back-arrow" onClick={function() { navigate('/profile'); }}>‹</button>
         <h1>Your Wishlist</h1>
       </div>
+
+      {toast && <div className="wishlist-toast">{toast}</div>}
 
       <div className="wishlist-content">
         {loading ? (
@@ -85,7 +95,7 @@ function WishlistPage() {
                     ❤️
                   </button>
                   <img
-                    src={'http://localhost:8000' + product.image}
+                    src={getImageURL(product.image)}
                     alt={product.name}
                     onError={function(e) { e.target.src = '/placeholder.png'; }}
                   />
@@ -93,9 +103,7 @@ function WishlistPage() {
                     <span className="wishlist-category">{product.category}</span>
                     <h3>{product.name}</h3>
                     <div className="wishlist-footer">
-                      <span className="wishlist-price">
-                        Rs.{product.price} / {product.unit}
-                      </span>
+                      <span className="wishlist-price">Rs.{product.price} / {product.unit}</span>
                       <button
                         className="wishlist-add-btn"
                         onClick={function() { handleAddToCart(product); }}

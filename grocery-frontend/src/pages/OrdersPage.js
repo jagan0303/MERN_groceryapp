@@ -5,6 +5,7 @@ import InvoicePage from './InvoicePage';
 import OrderTracker from '../components/OrderTracker';
 import OrderActionModal from '../components/OrderActionModal';
 import './OrdersPage.css';
+import { getImageURL } from '../api/helpers';
 
 function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -230,7 +231,7 @@ function OrdersPage() {
               return (
                 <div key={idx} className="detail-item-row">
                   <img
-                    src={'http://localhost:8000' + item.image}
+                    src={getImageURL(item.product.image)}
                     alt={item.name}
                     onError={function(e) { e.target.src = '/placeholder.png'; }}
                   />

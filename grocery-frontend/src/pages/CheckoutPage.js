@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import InvoicePage from './InvoicePage';
 import './CheckoutPage.css';
-
+import { getImageURL } from '../api/helpers';
 function CheckoutPage() {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -384,7 +384,7 @@ function CheckoutPage() {
                 return (
                   <div key={item.product._id} className="checkout-item">
                     <img
-                      src={'http://localhost:8000' + item.product.image}
+                      src={getImageURL(item.product.image)}
                       alt={item.product.name}
                       onError={function(e) { e.target.src = '/placeholder.png'; }}
                     />
