@@ -21,8 +21,8 @@ dotenv.config();
 const cors = require('cors');
 
 app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true
+  origin: ['http://localhost:3000', 'https://mern-groceryapp-1.onrender.com'],
+  credentials: true,
 }));
 
 // middleware
