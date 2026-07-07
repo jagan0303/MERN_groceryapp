@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://mern-groceryapp.onrender.com/',
+  baseURL: process.env.REACT_APP_API_URL || 'https://mern-groceryapp.onrender.com',
 });
 
 API.interceptors.request.use((config) => {

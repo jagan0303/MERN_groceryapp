@@ -375,7 +375,7 @@ function AdminProducts() {
               return (
                 <div key={product._id} className="admin-product-card">
                   <img
-                    src={'http://localhost:8000' + product.image}
+                    src={getImageURL(product.image)}
                     alt={product.name}
                     onError={function (e) { e.target.src = '/placeholder.png'; }}
                   />
