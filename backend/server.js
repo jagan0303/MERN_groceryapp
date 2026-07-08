@@ -54,6 +54,10 @@ app.get("/", (req, res) => {
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+// app.listen(port, () => {
+//   console.log(`Server running at http://localhost:${port}`);
+// });
+const PORT = process.env.PORT || 7860;
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
 });
