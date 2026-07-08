@@ -9,26 +9,26 @@ exports.sendSupportRequest = async (req, res) => {
     }
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        pass: process.env.EMAIL_PASSWORD  // ← fixed from EMAIL_PASS
       }
     });
 
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: '"Grocery App Support" <' + process.env.EMAIL_USER + '>',
       to: process.env.EMAIL_USER,
       replyTo: email,
       subject: "Support Request: " + (category || "General") + " - " + name,
-      html: `
-        <h3>New Support Request</h3>
-        <p><b>Name:</b> ${name}</p>
-        <p><b>Email:</b> ${email}</p>
-        <p><b>Category:</b> ${category || "General"}</p>
-        <p><b>Message:</b></p>
-        <p>${message}</p>
-      `
+      html: "<h3>New Support Request</h3>" +
+            "<p><b>Name:</b> " + name + "</p>" +
+            "<p><b>Email:</b> " + email + "</p>" +
+            "<p><b>Category:</b> " + (category || "General") + "</p>" +
+            "<p><b>Message:</b></p>" +
+            "<p>" + message + "</p>"
     });
 
     return res.status(200).json({

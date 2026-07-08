@@ -1,22 +1,31 @@
-const nodemailer=require("nodemailer")
-const dotEnv=require("dotenv")
-dotEnv.config()
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // Use true for port 465, false for port 587
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
-// Send an email using async/await
-exports.sendOtpEmail=async(email,otp)=>{
-     await transporter.sendMail({
-    from: `"OTP Verification"<${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: "Your OTP code",
-   // text: "Hello world?", // Plain-text version of the message
-    html: `<h2>Your OTP is:${otp}</h2><p>Valid for 5 minutes</p>`, // HTML version of the message
-  });
+const User = require("../models/User")
+const jwt = require("jsonwebtoken")
+const dotEnv = require("dotenv")
+const {generateOtp} = require("../email/generateOtp")
+const {sendOtpEmail} = require("../email/sendotp")
+
+exports.sendOtp = async (req, res) => {
+    try {
+        const {name, email} = req.body;
+        if(!email){
+            return res.status(400).json({msg:"Email required"})
+        }
+        let user = await User.findOne({email})
+        if(!user){
+            user = await User.create({name, email})
+        }
+        const otp = generateOtp()
+        user.otp = otp;
+        user.otpExpires = Date.now() + 5*60*1000
+        await user.save()
+        await sendOtpEmail(email, otp)
+        res.status(200).json({
+            success:true,
+            message:"OTP sent to your email",
+            name
+        })
+    } catch (error) {
+        console.error("SEND OTP ERROR:", error)
+        res.status(500).json({message: error.message})
+    }
 }
