@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const { generateOtp } = require("../email/generateOtp");
 
@@ -13,6 +14,86 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// ─── REGISTER WITH PASSWORD ───────────────────────────────
+exports.registerUser = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ msg: "Name, email and password are required" });
+    }
+
+    const existing = await User.findOne({ email });
+    if (existing && existing.password) {
+      return res.status(400).json({ msg: "Email already registered. Please login." });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    let user;
+    if (existing) {
+      existing.name = name;
+      existing.password = hashedPassword;
+      await existing.save();
+      user = existing;
+    } else {
+      user = await User.create({ name, email, password: hashedPassword });
+    }
+
+    return res.status(201).json({
+      success: true,
+      msg: "Account created successfully"
+    });
+
+  } catch (error) {
+    console.error("REGISTER ERROR:", error.message);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// ─── LOGIN WITH PASSWORD ──────────────────────────────────
+exports.loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ msg: "Email and password are required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ msg: "Account not found. Please register first." });
+    }
+
+    if (!user.password) {
+      return res.status(400).json({ msg: "This account uses OTP login. Please use OTP to sign in." });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ msg: "Invalid email or password." });
+    }
+
+    const token = jwt.sign(
+      { _id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    return res.status(200).json({
+      success: true,
+      token,
+      name: user.name,
+      email: user.email
+    });
+
+  } catch (error) {
+    console.error("LOGIN ERROR:", error.message);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// ─── SEND OTP ─────────────────────────────────────────────
 exports.sendOtp = async (req, res) => {
   try {
     const { name, email } = req.body;
@@ -31,20 +112,12 @@ exports.sendOtp = async (req, res) => {
     user.otpExpires = Date.now() + 5 * 60 * 1000;
     await user.save();
 
-    console.log("=== OTP DEBUG ===");
-    console.log("Sending to:", email);
-    console.log("EMAIL_USER:", process.env.EMAIL_USER);
-    console.log("PASSWORD exists:", !!process.env.EMAIL_PASSWORD);
-    console.log("PASSWORD length:", process.env.EMAIL_PASSWORD ? process.env.EMAIL_PASSWORD.length : 0);
-
     await transporter.sendMail({
       from: '"Grocery App OTP" <' + process.env.EMAIL_USER + '>',
       to: email,
       subject: "Your OTP Code",
       html: "<h2>Your OTP is: " + otp + "</h2><p>Valid for 5 minutes</p>"
     });
-
-    console.log("OTP email sent successfully to:", email);
 
     return res.status(200).json({
       success: true,
@@ -53,14 +126,12 @@ exports.sendOtp = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("=== OTP SEND FAILED ===");
-    console.error("Error:", error.message);
-    console.error("Code:", error.code);
-    console.error("Response:", error.response);
+    console.error("SEND OTP ERROR:", error.message);
     return res.status(500).json({ message: error.message });
   }
 };
 
+// ─── VERIFY OTP ───────────────────────────────────────────
 exports.verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -92,7 +163,7 @@ exports.verifyOtp = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    return res.json({ success: true, token });
+    return res.json({ success: true, token, name: user.name, email: user.email });
 
   } catch (error) {
     console.error("VERIFY OTP ERROR:", error.message);

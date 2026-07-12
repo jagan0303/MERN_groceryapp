@@ -119,3 +119,28 @@
 .auth-switch a:hover {
   text-decoration: underline;
 }
+.login-method-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  border: 1.5px solid #2e7d32;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.method-tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: white;
+  color: #2e7d32;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.method-tab.active {
+  background: #2e7d32;
+  color: white;
+}
