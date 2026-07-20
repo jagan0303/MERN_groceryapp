@@ -8,14 +8,12 @@ function OtpLoginPage() {
   const [loginMethod, setLoginMethod] = useState('password');
   const [step, setStep] = useState(1);
 
-  // Password login state
   const [loginData, setLoginData] = useState({ email: '', password: '' });
-
-  // Register state
-  const [registerData, setRegisterData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+  const [registerData, setRegisterData] = useState({
+    name: '', email: '', password: '', confirmPassword: ''
+  });
   const [isRegistering, setIsRegistering] = useState(false);
 
-  // OTP state
   const [otpName, setOtpName] = useState('');
   const [otpEmail, setOtpEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -30,7 +28,6 @@ function OtpLoginPage() {
     localStorage.setItem('customerEmail', email);
   };
 
-  // ─── PASSWORD LOGIN ───────────────────────────────────
   const handlePasswordLogin = async function(e) {
     e.preventDefault();
     setError('');
@@ -47,7 +44,6 @@ function OtpLoginPage() {
     }
   };
 
-  // ─── REGISTER ─────────────────────────────────────────
   const handleRegister = async function(e) {
     e.preventDefault();
     setError('');
@@ -72,7 +68,6 @@ function OtpLoginPage() {
     }
   };
 
-  // ─── OTP SEND ─────────────────────────────────────────
   const handleSendOtp = async function(e) {
     e.preventDefault();
     setError('');
@@ -88,14 +83,17 @@ function OtpLoginPage() {
     }
   };
 
-  // ─── OTP VERIFY ───────────────────────────────────────
   const handleVerifyOtp = async function(e) {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
       const res = await API.post('/email/verify-otp', { email: otpEmail, otp });
-      saveCustomerSession(res.data.token, res.data.name || otpName, otpEmail);
+      saveCustomerSession(
+        res.data.token,
+        res.data.name || otpName,
+        otpEmail
+      );
       navigate('/');
       window.location.reload();
     } catch (err) {
@@ -109,7 +107,11 @@ function OtpLoginPage() {
     <div className="auth-container">
       <div className="auth-box">
         <div className="auth-logo">🛒</div>
-        <h2>{isRegistering ? 'Create Account' : 'Customer Login'}</h2>
+
+        <h2>
+          {isRegistering ? 'Create Account' : 'Customer Login'}
+        </h2>
+
         <p className="auth-subtitle">
           {isRegistering
             ? 'Sign up to start shopping'
@@ -120,13 +122,22 @@ function OtpLoginPage() {
           <div className="login-method-tabs">
             <button
               className={'method-tab ' + (loginMethod === 'password' ? 'active' : '')}
-              onClick={function() { setLoginMethod('password'); setError(''); setSuccess(''); }}
+              onClick={function() {
+                setLoginMethod('password');
+                setError('');
+                setSuccess('');
+              }}
             >
               Password
             </button>
             <button
               className={'method-tab ' + (loginMethod === 'otp' ? 'active' : '')}
-              onClick={function() { setLoginMethod('otp'); setError(''); setSuccess(''); setStep(1); }}
+              onClick={function() {
+                setLoginMethod('otp');
+                setError('');
+                setSuccess('');
+                setStep(1);
+              }}
             >
               OTP
             </button>
@@ -145,7 +156,9 @@ function OtpLoginPage() {
                 type="email"
                 placeholder="Enter your email"
                 value={loginData.email}
-                onChange={function(e) { setLoginData({ ...loginData, email: e.target.value }); }}
+                onChange={function(e) {
+                  setLoginData({ ...loginData, email: e.target.value });
+                }}
                 required
               />
             </div>
@@ -155,18 +168,35 @@ function OtpLoginPage() {
                 type="password"
                 placeholder="Enter your password"
                 value={loginData.password}
-                onChange={function(e) { setLoginData({ ...loginData, password: e.target.value }); }}
+                onChange={function(e) {
+                  setLoginData({ ...loginData, password: e.target.value });
+                }}
                 required
               />
             </div>
+
+            <p style={{ textAlign: 'right', marginTop: '-8px', marginBottom: '16px' }}>
+              <span
+                style={{ color: '#2e7d32', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}
+                onClick={function() { navigate('/forgot-password'); }}
+              >
+                Forgot Password?
+              </span>
+            </p>
+
             <button type="submit" className="auth-btn" disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </button>
+
             <p className="auth-switch">
               Don't have an account?{' '}
               <span
                 style={{ color: '#2e7d32', cursor: 'pointer', fontWeight: 600 }}
-                onClick={function() { setIsRegistering(true); setError(''); setSuccess(''); }}
+                onClick={function() {
+                  setIsRegistering(true);
+                  setError('');
+                  setSuccess('');
+                }}
               >
                 Register here
               </span>
@@ -174,7 +204,7 @@ function OtpLoginPage() {
           </form>
         )}
 
-        {/* OTP LOGIN */}
+        {/* OTP STEP 1 — Enter Email */}
         {!isRegistering && loginMethod === 'otp' && step === 1 && (
           <form onSubmit={handleSendOtp}>
             <div className="form-group">
@@ -203,7 +233,7 @@ function OtpLoginPage() {
           </form>
         )}
 
-        {/* OTP VERIFY */}
+        {/* OTP STEP 2 — Enter OTP */}
         {!isRegistering && loginMethod === 'otp' && step === 2 && (
           <form onSubmit={handleVerifyOtp}>
             <p className="auth-subtitle">OTP sent to {otpEmail}</p>
@@ -215,7 +245,11 @@ function OtpLoginPage() {
                 value={otp}
                 onChange={function(e) { setOtp(e.target.value); }}
                 maxLength={6}
-                style={{ letterSpacing: '8px', fontSize: '22px', textAlign: 'center' }}
+                style={{
+                  letterSpacing: '8px',
+                  fontSize: '22px',
+                  textAlign: 'center'
+                }}
                 required
               />
             </div>
@@ -233,7 +267,7 @@ function OtpLoginPage() {
           </form>
         )}
 
-        {/* REGISTER */}
+        {/* REGISTER FORM */}
         {isRegistering && (
           <form onSubmit={handleRegister}>
             <div className="form-group">
@@ -242,7 +276,9 @@ function OtpLoginPage() {
                 type="text"
                 placeholder="Your full name"
                 value={registerData.name}
-                onChange={function(e) { setRegisterData({ ...registerData, name: e.target.value }); }}
+                onChange={function(e) {
+                  setRegisterData({ ...registerData, name: e.target.value });
+                }}
                 required
               />
             </div>
@@ -252,7 +288,9 @@ function OtpLoginPage() {
                 type="email"
                 placeholder="Enter your email"
                 value={registerData.email}
-                onChange={function(e) { setRegisterData({ ...registerData, email: e.target.value }); }}
+                onChange={function(e) {
+                  setRegisterData({ ...registerData, email: e.target.value });
+                }}
                 required
               />
             </div>
@@ -260,9 +298,11 @@ function OtpLoginPage() {
               <label>Password</label>
               <input
                 type="password"
-                placeholder="Create a password"
+                placeholder="Create a password (min 6 characters)"
                 value={registerData.password}
-                onChange={function(e) { setRegisterData({ ...registerData, password: e.target.value }); }}
+                onChange={function(e) {
+                  setRegisterData({ ...registerData, password: e.target.value });
+                }}
                 required
               />
             </div>
@@ -272,18 +312,26 @@ function OtpLoginPage() {
                 type="password"
                 placeholder="Confirm your password"
                 value={registerData.confirmPassword}
-                onChange={function(e) { setRegisterData({ ...registerData, confirmPassword: e.target.value }); }}
+                onChange={function(e) {
+                  setRegisterData({ ...registerData, confirmPassword: e.target.value });
+                }}
                 required
               />
             </div>
+
             <button type="submit" className="auth-btn" disabled={loading}>
               {loading ? 'Creating account...' : 'Register'}
             </button>
+
             <p className="auth-switch">
               Already have an account?{' '}
               <span
                 style={{ color: '#2e7d32', cursor: 'pointer', fontWeight: 600 }}
-                onClick={function() { setIsRegistering(false); setError(''); setSuccess(''); }}
+                onClick={function() {
+                  setIsRegistering(false);
+                  setError('');
+                  setSuccess('');
+                }}
               >
                 Login here
               </span>

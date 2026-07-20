@@ -144,3 +144,27 @@
   background: #2e7d32;
   color: white;
 }
+.success-box {
+  text-align: center;
+  padding: 20px;
+  background: #e8f5e9;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.success-icon-large {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+.success-msg-large {
+  color: #2e7d32;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.success-hint {
+  font-size: 13px;
+  color: #666;
+}
